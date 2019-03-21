@@ -14,14 +14,16 @@ and open the template in the editor.
         <script type="text/javascript" src="/libs/jquery/jquery.js"></script>
         <!-- Core Components -->
         <script type="text/javascript" src="/JSObjects/rule.js"></script>
-        <script type="text/javascript" src="/JSObjects/engine.js"></script>
+        <script type="text/javascript" src="/JSObjects/guiRule.js"></script>
         
         <!-- Testing Support Scripts -->
         <script type="text/javascript" src="tests/testRule.js"></script>
         <script type="text/javascript" src="tests/testEngine.js"></script>
     </head>
     <body>
-        
+        <div id="gui-rule-div">
+            Loading...
+        </div>
         <div id="testR0001">
             <h3>test basic Rule Execution</h3>
             <div id="testR0001_facts"></div>
@@ -36,7 +38,8 @@ and open the template in the editor.
     </body>
     <!-- // This might go in a different file. We are using a Catolg from test -->
     <script type="text/javascript">
-        var fact = {};
+        
+        var rg = new RuleGUI(rule, fact, jQuery("#gui-rule-div"), {"Math": Math});
 
         //$("#testR0001_results").text(JSON.stringify(fact));
 

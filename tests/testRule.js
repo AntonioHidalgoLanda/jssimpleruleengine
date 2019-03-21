@@ -66,3 +66,4 @@ rule.execute(fact, {"P": fact.test001_0B, "msg": fact.msg});
 printRule(fact, rule);
 
 
+

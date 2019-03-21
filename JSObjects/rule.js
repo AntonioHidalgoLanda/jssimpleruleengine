@@ -75,6 +75,29 @@ Rule.prototype.execute = function (facts, candidate) {
     return this;
 };
 
+Rule.isCandidate = function (fact, target) {
+    for (var attribute in target){
+        if (!fact.hasOwnProperty(target[attribute])){
+            return false;
+        }
+    }
+    return true;
+};
+
+Rule.prototype.getCandidatesFor = function(facts, targetName) {
+    var arr = [];
+    if (this.target.length === 0) {
+        this.extractTargets();
+    }
+    var attribute = this.target[targetName];
+    for (var fact in facts) {
+        if (Rule.isCandidate(facts[fact], attribute)) {
+            arr.push(fact);
+        }
+    }
+    return arr;
+}
+
 // Not working - Creates duplicates....
 Rule.prototype.getCandidates = function(facts){
     var targets = this.extractTargets();    // All the different entities in rule.condition and rule.reaction
@@ -85,14 +108,7 @@ Rule.prototype.getCandidates = function(facts){
         var attributes = targets[target];
         for (var itemName in facts) {
             var item = facts[itemName];
-            var elegible = true;
-            for (var attribute in attributes){
-                if (!item.hasOwnProperty(attributes[attribute])){
-                    elegible = false;
-                    break;
-                }
-            }
-            if (elegible) {
+            if (Rule.isCandidate(item, attributes)){
                 candidate[target] = item;
                 
                 // if lenghs are right
@@ -104,6 +120,7 @@ Rule.prototype.getCandidates = function(facts){
                 }
             }
         }
+        // remove target from candidates
     }
     return candidates;
 };
@@ -117,8 +134,10 @@ Rule.prototype.assignTargets = function(candidate, scope){
 };
 
 Rule.prototype.committ = function(facts, scope){
-    for (var target in scope) {
-        facts[target] = scope[target];
+    for (var target in facts) { //scope
+        if (scope.hasOwnProperty(target)) {
+            facts[target] = scope[target];
+        }
     }
     return this;
 };
