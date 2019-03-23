@@ -3,6 +3,11 @@
 
 /*global jQuery*/
 
+/*
+Please override RuleGUI.prototype.factToDiv = function (fact)
+and add a CSS.
+*/
+
 function RuleGUI(rule, facts, div, predefined) {
     "use strict";
     
@@ -42,16 +47,22 @@ RuleGUI.prototype.targetsToDiv = function () {
         } else {
             var selectbox = jQuery('<select>', {
                     id: 'select-' + target + '-rgui',
-                    class: 'select-' + target + '-rgui',
-                    text: this.rule.condition
+                    class: 'select-' + target + '-rgui'  
                 });
+            selectbox.on('change', handlerSelectTarget(this.candidate, this.facts, target));
+            this.divTargets.append(target);
             this.divTargets.append(selectbox);
             this.factsToSelectbox(target, selectbox);
-            // on change//select
-            //    candidate[target] = this.facts[selected];
+            var currentValue = selectbox.find(":selected").val();
+            this.candidate[target] = this.facts[currentValue];
         }
     }
-    // button to execute the rule and refresh facts
+    
+    this.divTargets.append(jQuery('<button/>',
+            {
+                text: 'Execute',
+                click: handlerExecuteRule(this.rule, this.facts, this.candidate, this)
+            }));
 };
 
 
@@ -113,13 +124,36 @@ RuleGUI.prototype.factsToDiv = function (facts) {
                 title: 'fact id',
                 text: fact
             }));
-        divFact.append(jQuery('<div/>', {
-                id: 'fact-id-rgui',
-                class: 'fact-rgui',
-                title: 'fact body',
-                text: JSON.stringify(this.facts[fact])
-            }));
+        divFact.append(this.factToDiv(fact));
         this.divFacts.append(divFact);
     }
 };
 
+RuleGUI.prototype.factToDiv = function (fact) {
+    return jQuery('<div/>', {
+                id: 'fact-id-rgui',
+                class: 'fact-rgui',
+                title: 'fact body',
+                text: JSON.stringify(this.facts[fact])
+            });
+};
+
+
+var handlerSelectTarget = function (candidate, facts, target) {
+    return function () {
+            var currentValue = this.options[this.selectedIndex].value;
+            candidate[target] = facts[currentValue];
+    };
+};
+
+var handlerExecuteRule = function (rule, facts, candidate, divRule) {
+    "use strict";
+    return function () {
+        
+        rule.execute(facts, candidate);
+        
+        divRule.factsToDiv();
+        // divRule.targetsToDiv(); We don't need so far, don't add it.
+        
+    };
+};

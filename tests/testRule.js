@@ -22,6 +22,9 @@ var fact = {};
 
 fact.test001_0A = {"value": 2, "message": ""};
 fact.test001_0B = {"value": 7, "message": ""};
+fact.test001_0D = {"value": 17, "message": ""};
+fact.test001_0E = {"value": 5, "message": ""};
+fact.test001_0F = {"value": 9, "message": ""};
 fact.msg = {"msg_rule_triggered": "Rule Triggered"};
 
 
