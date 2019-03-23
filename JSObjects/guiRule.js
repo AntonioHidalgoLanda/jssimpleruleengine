@@ -1,7 +1,7 @@
 /*jslint devel: true */
 /* eslint-disable no-console */
 
-/*global jQuery*/
+/*global jQuery, FactsGUI */
 
 /*
 Please override RuleGUI.prototype.factToDiv = function (fact)
@@ -12,30 +12,30 @@ function RuleGUI(rule, facts, div, predefined) {
     "use strict";
     
     this.div = div;
-    this.divFacts = null;
+    this.guiFacts = new FactsGUI(facts, null);
     this.divTargets = null;
     this.candidate = [];
     this.rule = rule;
-    this.facts = facts;
     this.predefined = predefined;
     this.ruleToDiv();
-    this.factsToDiv();
     this.targetsToDiv();
 }
 
 
 RuleGUI.prototype.factsToSelectbox = function (target, selectbox) {
     "use strict";
-    var arr = this.rule.getCandidatesFor(this.facts, target);
-    jQuery(arr).each(function() {
-        selectbox.append(jQuery("<option>").attr('value',this).text(this));
+    var arr = this.rule.getCandidatesFor(this.guiFacts.facts, target);
+    jQuery(arr).each(function () {
+        selectbox.append(jQuery("<option>").attr('value', this).text(this));
     });
 };
 
 RuleGUI.prototype.targetsToDiv = function () {
     "use strict";
     var target,
-        targets = this.rule.extractTargets();
+        targets = this.rule.extractTargets(),
+        selectbox,
+        currentValue;
     this.candidate = [];
     if (this.divTargets !== null) {
         this.divTargets.empty();
@@ -45,24 +45,24 @@ RuleGUI.prototype.targetsToDiv = function () {
         if (this.predefined.hasOwnProperty(target)) {
             this.candidate[target] = this.predefined[target];
         } else {
-            var selectbox = jQuery('<select>', {
-                    id: 'select-' + target + '-rgui',
-                    class: 'select-' + target + '-rgui'  
-                });
-            selectbox.on('change', handlerSelectTarget(this.candidate, this.facts, target));
+            selectbox = jQuery('<select>', {
+                id: 'select-' + target + '-rgui',
+                class: 'select-' + target + '-rgui'
+            });
+            selectbox.on('change', handlerSelectTarget(this.candidate, this.guiFacts.facts, target));
             this.divTargets.append(target);
             this.divTargets.append(selectbox);
             this.factsToSelectbox(target, selectbox);
-            var currentValue = selectbox.find(":selected").val();
-            this.candidate[target] = this.facts[currentValue];
+            currentValue = selectbox.find(":selected").val();
+            this.candidate[target] = this.guiFacts.facts[currentValue];
         }
     }
     
     this.divTargets.append(jQuery('<button/>',
             {
-                text: 'Execute',
-                click: handlerExecuteRule(this.rule, this.facts, this.candidate, this)
-            }));
+            text: 'Execute',
+            click: handlerExecuteRule(this.rule, this.guiFacts.facts, this.candidate, this)
+        }));
 };
 
 
@@ -89,60 +89,29 @@ RuleGUI.prototype.ruleToDiv = function () {
     );
     
     this.divFacts = jQuery('<div/>', {
-            id: 'facts-rgui',
-            class: 'fats-rgui',
-            title: 'facts'
-        });
+        id: 'facts-rgui',
+        class: 'fats-rgui',
+        title: 'facts'
+    });
     this.div.append(this.divFacts);
     
     this.divTargets = jQuery('<div/>', {
-            id: 'targets-rgui',
-            class: 'targets-rgui',
-            title: 'targets'
-        });
+        id: 'targets-rgui',
+        class: 'targets-rgui',
+        title: 'targets'
+    });
     this.div.append(this.divTargets);
     
-};
-
-RuleGUI.prototype.factsToDiv = function (facts) {
-    "use strict";
-    if (this.divFacts !== null) {
-        this.divFacts.empty();
-    }
-    if (facts !== null && facts !== undefined) {
-        this.facts = facts;
-    }
-    for (var fact in this.facts) {
-        var divFact = jQuery('<div/>', {
-                id: 'fact-rgui',
-                class: 'fact-rgui',
-                title: 'fact'
-            });
-        divFact.append(jQuery('<div/>', {
-                id: 'fact-id-rgui',
-                class: 'fact-id-rgui',
-                title: 'fact id',
-                text: fact
-            }));
-        divFact.append(this.factToDiv(fact));
-        this.divFacts.append(divFact);
-    }
-};
-
-RuleGUI.prototype.factToDiv = function (fact) {
-    return jQuery('<div/>', {
-                id: 'fact-id-rgui',
-                class: 'fact-rgui',
-                title: 'fact body',
-                text: JSON.stringify(this.facts[fact])
-            });
+    this.guiFacts.divFacts = this.divFacts;
+    this.guiFacts.factsToDiv();
 };
 
 
 var handlerSelectTarget = function (candidate, facts, target) {
+    "use strict";
     return function () {
-            var currentValue = this.options[this.selectedIndex].value;
-            candidate[target] = facts[currentValue];
+        var currentValue = this.options[this.selectedIndex].value;
+        candidate[target] = facts[currentValue];
     };
 };
 
@@ -152,8 +121,7 @@ var handlerExecuteRule = function (rule, facts, candidate, divRule) {
         
         rule.execute(facts, candidate);
         
-        divRule.factsToDiv();
-        // divRule.targetsToDiv(); We don't need so far, don't add it.
+        divRule.guiFacts.factsToDiv();
         
     };
 };
