@@ -38,10 +38,7 @@ and open the template in the editor.
     <!-- // This might go in a different file. We are using a Catolg from test -->
     <script type="text/javascript">
         
-        
-        var rg = new RuleGUI(rule, fact, jQuery("#gui-rule-div"), {"Math": Math});
-
-        //$("#testR0001_results").text(JSON.stringify(fact));
+        var rg = new RuleGUI(rule, fact, jQuery("#gui-rule-div"), {"Math": Math, "msg": fact.msg});
 
         // Load Rule catalog
         // link rules to divs
