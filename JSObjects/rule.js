@@ -84,6 +84,12 @@ Rule.isCandidate = function (fact, target) {
     return true;
 };
 
+Rule.prototype.isValidCandidate = function (candidate) {
+    var scope = {};                 // clean up any scope variable// scope = []
+    this.assignTargets(candidate, scope);
+    return eval(this.condition);
+};
+
 Rule.prototype.getCandidatesFor = function(facts, targetName) {
     var arr = [];
     if (this.target.length === 0) {
