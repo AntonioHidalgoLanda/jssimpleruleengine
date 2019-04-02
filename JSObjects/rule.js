@@ -5,15 +5,15 @@
 /*global
 console
 */
-function Rule (strCondition, strReaction) {
+function Rule(strCondition, strReaction) {
     // private variables (TODO - make them private)
     this.condition;
     this.reaction;
     
     // Static variables
     this.regExAssignation = /[^<>=]=[^=<>]/gm;
-    this.regExQuote = new RegExp("\"+","gm"); //("\"*","gm")
-    this.regExScope = new RegExp("[A-Za-z]([\\.]*\\w)*","gm");
+    this.regExQuote = new RegExp("\"+", "gm"); //("\"*","gm")
+    this.regExScope = new RegExp("[A-Za-z]([\\.]*\\w)*", "gm");
     this.replaceScope = "scope.$&";
     
     this.target = [];
@@ -35,10 +35,10 @@ Rule.prototype.setCondition = function (str) {
         console.log("Rule conditions and reaction cannot use quotes.");
         return this;
     }
-    this.condition = str.replace(this.regExScope,this.replaceScope);
+    this.condition = str.replace(this.regExScope, this.replaceScope);
     
     return this;
-}
+};
 
 Rule.prototype.setReaction = function (str) {
     // Don't tolerate strings, strings will be part of facts
@@ -48,27 +48,26 @@ Rule.prototype.setReaction = function (str) {
         return this;
     }
     
-    this.reaction = str.replace(this.regExScope,this.replaceScope);
+    this.reaction = str.replace(this.regExScope, this.replaceScope);
     
     return this;
-}
+};
 
 Rule.prototype.execute = function (facts, candidate) {
     var candidates;
     if (candidate) {
         candidates = [];
         candidates.push(candidate);
-    }
-    else {
+    } else {
         candidates = this.getCandidates(facts);
     }
     
     for (var item in candidates) {
-        var scope = {};                 // clean up any scope variable// scope = []
-        this.assignTargets(candidates[item], scope);   // scope[target] = candidate[target] || break
+        var scope = {};                                 // clean up any scope variable// scope = []
+        this.assignTargets(candidates[item], scope);    // scope[target] = candidate[target] || break
         if (eval(this.condition)) {
                 eval(this.reaction);
-                this.committ(facts, scope);       // candidate[target] = scope[target]
+                this.committ(facts, scope);             // candidate[target] = scope[target]
         }
             
     }
@@ -86,6 +85,11 @@ Rule.isCandidate = function (fact, target) {
 
 Rule.prototype.isValidCandidate = function (candidate) {
     var scope = {};                 // clean up any scope variable// scope = []
+    for (var target in this.target) {
+        if (!candidate.hasOwnProperty(target)) {
+            return false;
+        }
+    }
     this.assignTargets(candidate, scope);
     return eval(this.condition);
 };
