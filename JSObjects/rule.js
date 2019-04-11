@@ -108,7 +108,50 @@ Rule.prototype.getCandidatesFor = function(facts, targetName) {
     return arr;
 }
 
-// Not working
+Rule.prototype.recursiveDFSCandidates = function (candidate, targetedFacts, facts) {
+    var target, factid, candidates = [];
+    if (Object.keys(candidate).length >= Object.keys(targetedFacts).length) {
+        if (this.isValidCandidate(candidate)) {
+            candidates.push(candidate);
+            return candidates;
+        } else {
+            return [];
+        }
+    }
+    for (target in targetedFacts) {
+        if (targetedFacts.hasOwnProperty(target) && !candidate.hasOwnProperty(target)) {
+            for (factid in targetedFacts[target]) {
+                if (targetedFacts[target].hasOwnProperty(factid)) {
+                    candidate[target] = facts[targetedFacts[target][factid]];
+                    candidates = candidates.concat(
+                        this.recursiveDFSCandidates(Object.assign({}, candidate), targetedFacts, facts)
+                    );
+                }
+            }
+            return candidates;
+        }
+    }
+    return candidates;
+};
+
+Rule.prototype.getCandidates = function (facts, preDefined) {
+  
+    var targets = this.extractTargets(),
+        targetedFacts = {},
+        candidate = Object.assign({"Math": Math},preDefined),
+        target;
+    
+    for (target in targets) {
+        if (targets.hasOwnProperty(target)) {
+            targetedFacts[target] = this.getCandidatesFor(facts, target);
+        }
+    }
+    
+    return this.recursiveDFSCandidates(candidate, targetedFacts, facts);
+};
+
+
+
 Rule.prototype.getCandidates = function(facts){
     var targets = this.extractTargets(),
         targetedFacts = {},
