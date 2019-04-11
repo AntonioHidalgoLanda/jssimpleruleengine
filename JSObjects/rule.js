@@ -108,29 +108,37 @@ Rule.prototype.getCandidatesFor = function(facts, targetName) {
     return arr;
 }
 
-// Not working - Creates duplicates....
+// Not working
 Rule.prototype.getCandidates = function(facts){
-    var targets = this.extractTargets();    // All the different entities in rule.condition and rule.reaction
-    // All possible combinations for the target of that rule
-    var candidates = [];
-    var candidate = {};
-    for (var target in targets){
-        var attributes = targets[target];
-        for (var itemName in facts) {
-            var item = facts[itemName];
-            if (Rule.isCandidate(item, attributes)){
-                candidate[target] = item;
-                
-                // if lenghs are right
-                if (Object.keys(candidate).length >= Object.keys(targets).length) {
-                    candidates.push(candidate);
-                    candidate=candidate.deepCopy();  //NOT Implemented
-                    console.log(this);
-                    console.log("not implemented");
+    var targets = this.extractTargets(),
+        targetedFacts = {},
+        candidates = [],
+        candidate = {"Math": Math},
+        target,
+        factId,
+        fact;
+    
+    for (target in targets) {
+        if (targets.hasOwnProperty(target)) {
+            targetedFacts[target] = this.getCandidatesFor(facts, target);
+        }
+    }
+    
+    for (target in targets) {
+        if (targets.hasOwnProperty(target) && targetedFacts.hasOwnProperty(target) &&
+                (!candidate.hasOwnProperty(target) || candidate[target] === null)) {
+            for (factId in targetedFacts[target]) {
+                if (targetedFacts[target].hasOwnProperty(factId)) {
+                    fact = targetedFacts[target][factId];
+                    candidate[target] = fact;
+                    // If current candidate IS COMPLETE
+                    if (Object.keys(candidate).length >= Object.keys(targets).length) {
+                        candidates.push(Object.assign({}, candidate));
+                        candidate[target] = null;
+                    }
                 }
             }
         }
-        // remove target from candidates
     }
     return candidates;
 };
@@ -178,7 +186,7 @@ Rule.prototype.extractTargets = function(){
             if (m) {
                 var attribute = m[0].split(".")[2];    //grabbing only the right side after scope.
                 if (attribute !== null && this.target.hasOwnProperty(targetName)) {
-                    if (!this.target[targetName].hasOwnProperty(attribute)){
+                    if (this.target[targetName].indexOf(attribute) < 0){
                         this.target[targetName].push(attribute);
                     }
                 }
