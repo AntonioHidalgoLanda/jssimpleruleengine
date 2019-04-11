@@ -150,43 +150,6 @@ Rule.prototype.getCandidates = function (facts, preDefined) {
     return this.recursiveDFSCandidates(candidate, targetedFacts, facts);
 };
 
-
-
-Rule.prototype.getCandidates = function(facts){
-    var targets = this.extractTargets(),
-        targetedFacts = {},
-        candidates = [],
-        candidate = {"Math": Math},
-        target,
-        factId,
-        fact;
-    
-    for (target in targets) {
-        if (targets.hasOwnProperty(target)) {
-            targetedFacts[target] = this.getCandidatesFor(facts, target);
-        }
-    }
-    
-    for (target in targets) {
-        if (targets.hasOwnProperty(target) && targetedFacts.hasOwnProperty(target) &&
-                (!candidate.hasOwnProperty(target) || candidate[target] === null)) {
-            for (factId in targetedFacts[target]) {
-                if (targetedFacts[target].hasOwnProperty(factId)) {
-                    fact = targetedFacts[target][factId];
-                    candidate[target] = fact;
-                    // If current candidate IS COMPLETE
-                    if (Object.keys(candidate).length >= Object.keys(targets).length) {
-                        candidates.push(Object.assign({}, candidate));
-                        candidate[target] = null;
-                    }
-                }
-            }
-        }
-    }
-    return candidates;
-};
-
-
 Rule.prototype.assignTargets = function(candidate, scope){
     for (var target in candidate) {
         scope[target] = candidate[target];
