@@ -76,7 +76,7 @@ Rule.prototype.execute = function (facts, candidate) {
 
 Rule.isCandidate = function (fact, target) {
     for (var attribute in target){
-        if (!fact.hasOwnProperty(target[attribute])){
+        if (!fact.hasOwnProperty(target[attribute]) && typeof fact[target[attribute]] !== "function"){
             return false;
         }
     }
