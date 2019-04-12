@@ -11,10 +11,6 @@ function Rule(strCondition, strReaction) {
     this.reaction;
     
     // Static variables
-    this.regExAssignation = /[^<>=]=[^=<>]/gm;
-    this.regExQuote = new RegExp("\"+", "gm"); //("\"*","gm")
-    this.regExScope = new RegExp("[A-Za-z]([\\.]*\\w)*", "gm");
-    this.replaceScope = "scope.$&";
     
     this.target = [];
     
@@ -23,19 +19,24 @@ function Rule(strCondition, strReaction) {
     this.setReaction(strReaction);
 }
 
+Rule.regExAssignation = /[^<>=]=[^=<>]/gm;
+Rule.regExQuote = new RegExp("\"+", "gm"); //("\"*","gm")
+Rule.regExScope = new RegExp("[A-Za-z]([\\.]*\\w)*", "gm");
+Rule.replaceScope = "scope.$&";
+
 Rule.prototype.setCondition = function (str) {
     this.condition = "";
-    if (this.regExAssignation.test(str)) {
+    if (Rule.regExAssignation.test(str)) {
         console.log("Rule conditionscannot use assignations.");
         return this;
     }
     
     // Don't tolerate strings, strings will be part of facts
-    if (this.regExQuote.test(str)) {
+    if (Rule.regExQuote.test(str)) {
         console.log("Rule conditions and reaction cannot use quotes.");
         return this;
     }
-    this.condition = str.replace(this.regExScope, this.replaceScope);
+    this.condition = str.replace(Rule.regExScope, Rule.replaceScope);
     
     return this;
 };
@@ -43,12 +44,12 @@ Rule.prototype.setCondition = function (str) {
 Rule.prototype.setReaction = function (str) {
     // Don't tolerate strings, strings will be part of facts
     this.reaction = "";
-    if (this.regExQuote.test(str)) {
+    if (Rule.regExQuote.test(str)) {
         console.log("Rule conditions and reaction cannot use quotes.");
         return this;
     }
     
-    this.reaction = str.replace(this.regExScope, this.replaceScope);
+    this.reaction = str.replace(Rule.regExScope, Rule.replaceScope);
     
     return this;
 };
