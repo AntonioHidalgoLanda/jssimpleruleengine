@@ -109,9 +109,20 @@ Rule.prototype.getCandidatesFor = function(facts, targetName) {
     return arr;
 }
 
+Rule.isSubArray = function (extendedSet, subset) {
+    "user stric;"
+    var i;
+    for (i = 0; i < subset.length; i += 0) {
+        if (extendedSet.indexOf(subset[i]) < 0) {
+            return false;
+        }
+    }
+    return true;
+};
+
 Rule.prototype.recursiveDFSCandidates = function (candidate, targetedFacts, facts) {
     var target, factid, candidates = [];
-    if (Object.keys(candidate).length >= Object.keys(targetedFacts).length) {
+    if (Rule.isSubArray(Object.keys(candidate), Object.keys(targetedFacts))) {
         if (this.isValidCandidate(candidate)) {
             candidates.push(candidate);
             return candidates;
