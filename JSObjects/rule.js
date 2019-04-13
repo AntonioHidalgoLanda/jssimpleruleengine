@@ -112,7 +112,7 @@ Rule.prototype.getCandidatesFor = function(facts, targetName) {
 Rule.isSubArray = function (extendedSet, subset) {
     "user stric;"
     var i;
-    for (i = 0; i < subset.length; i += 0) {
+    for (i = 0; i < subset.length; i += 1) {
         if (extendedSet.indexOf(subset[i]) < 0) {
             return false;
         }
